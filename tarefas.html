@@ -57,7 +57,7 @@
     }
 
     function getDateTime(date, time) {
-      return new Date(${date}T${time});
+      return new Date(`${date}T${time}`);
     }
 
     function calcProgress(task) {
@@ -97,7 +97,7 @@
         const tdPeriod = document.createElement('td');
         const inicio = new Date(task.startDateTime).toLocaleString();
         const fim = new Date(task.endDateTime).toLocaleString();
-        tdPeriod.textContent = ${inicio} até ${fim};
+        tdPeriod.textContent = `${inicio} até ${fim}`;
         tr.appendChild(tdPeriod);
 
         const tdProgress = document.createElement('td');
@@ -190,7 +190,7 @@
         messageBox.textContent = '';
       } else {
         const remaining = tasks.filter(task => !task.done).length;
-        messageBox.textContent = Você tem ${remaining} tarefa(s) pendente(s).;
+        messageBox.textContent = `Você tem ${remaining} tarefa(s) pendente(s).`;
       }
     }
 
@@ -203,3 +203,5 @@
   </script>
 </body>
 </html>
+
+
