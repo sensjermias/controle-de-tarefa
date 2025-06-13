@@ -5,6 +5,140 @@
   <title>Minhas Tarefas</title>
   <style>
     /* Estilos omitidos para brevidade */
+   body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #33ddaa, #3399ff);
+      background-size: 200% 200%;
+      animation: gradient 10s ease infinite;
+      margin: 0;
+      padding: 40px 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: #ffffffee;
+      padding: 30px;
+      border-radius: 12px;
+      width: 750px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2, h3 {
+      margin-top: 0;
+      color: #222;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"] {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 14px 0;
+      box-sizing: border-box;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #33ddaa;
+      outline: none;
+    }
+
+    button {
+      background-color: #33ddaa;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      border-radius: 6px;
+      margin-top: 10px;
+      margin-right: 6px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2cc196;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .progress-bar {
+      background: #eee;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 18px;
+      width: 100%;
+    }
+
+    .progress-fill {
+      background: #33ddaa;
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #007700;
+      text-align: center;
+      min-height: 24px;
+      font-style: italic;
+    }
+
+    .fade-in-row {
+      animation: fadeInRow 0.5s ease forwards;
+    }
+
+    @keyframes fadeInRow {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
