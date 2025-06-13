@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Recuperar Senha</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(45deg, #ff3366, #ffcc00);
+      background-size: 400% 400%;
+      animation: gradient 10s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    input, button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #ff3366;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #cc0044;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Recuperar Senha</h2>
+    <input type="text" id="recUser" placeholder="Nome de usuário">
+    <button onclick="loadQuestion()">Ver Pergunta</button>
+    <div id="questionBox" style="display:none;">
+      <p id="questionText"></p>
+      <input type="text" id="answerInput" placeholder="Resposta secreta">
+      <input type="password" id="newPassInput" placeholder="Nova senha">
+      <button onclick="resetPassword()">Alterar senha</button>
+    </div>
+    <p><a href="index.html">Voltar ao login</a></p>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    function loadQuestion() {
+      const user = document.getElementById('recUser').value;
+      const users = JSON.parse(localStorage.getItem('usuarios') || '[]');
+      const found = users.find(u => u.user === user);
+
+      if (found) {
+        currentUser = found;
+        document.getElementById('questionBox').style.display = 'block';
+        document.getElementById('questionText').textContent = found.question;
+      } else {
+        alert("Usuário não encontrado");
+      }
+    }
+
+    function resetPassword() {
+      const answer = document.getElementById('answerInput').value;
+      const newPass = document.getElementById('newPassInput').value;
+
+      if (!currentUser) {
+        alert("Carregue a pergunta primeiro");
+        return;
+      }
+      
+      if (answer !== currentUser.answer) {
+        alert("Resposta incorreta");
+        return;
+      }
+
+      if (!newPass) {
+        alert("Digite uma nova senha");
+        return;
+      }
+
+      currentUser.pass = newPass;
+      currentUser.pass = newPass;
+      alert("Senha alterada com sucesso!");
+      // Atualiza o usuário na lista e salva no localStorage
+      const users = JSON.parse(localStorage.getItem('usuarios') || '[]');
+      const idx = users.findIndex(u => u.user === currentUser.user);
+      if (idx !== -1) {
+        users[idx] = currentUser;
+        localStorage.setItem('usuarios', JSON.stringify(users));
+      }
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minhas Tarefas</title>
+  <style>
+    /* Estilos omitidos para brevidade */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Minhas Tarefas</h2>
+    <button onclick="window.location.href='index.html'">Sair</button>
+
+    <h3>Adicionar Nova Tarefa</h3>
+
+    <label for="email">Seu Gmail:</label>
+    <input type="email" id="email" placeholder="exemplo@gmail.com" />
+
+    <label for="taskTitle">Título:</label>
+    <input type="text" id="taskTitle" placeholder="Nome da tarefa" />
+
+    <label>Data e hora inicial:</label>
+    <input type="date" id="startDate" />
+    <input type="time" id="startTime" />
+
+    <label>Data e hora final:</label>
+    <input type="date" id="endDate" />
+    <input type="time" id="endTime" />
+
+    <button onclick="addTask()">Adicionar Tarefa</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tarefa</th>
+          <th>Período</th>
+          <th>Progresso</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="taskList"></tbody>
+    </table>
+
+    <button onclick="window.location.href='visualizar.html'">Visualizar Tarefas</button>
+
+    <div class="message" id="messageBox"></div>
+  </div>
+
+  <script>
+    const user = localStorage.getItem('loggedUser') || 'Usuário';
+    let tasks = JSON.parse(localStorage.getItem('tasks_' + user) || '[]');
+
+    function saveTasks() {
+      localStorage.setItem('tasks_' + user, JSON.stringify(tasks));
+    }
+
+    function getDateTime(date, time) {
+      return new Date(`${date}T${time}`);
+    }
+
+    function calcProgress(task) {
+      const now = new Date();
+      const start = new Date(task.startDateTime);
+      const end = new Date(task.endDateTime);
+      if (now <= start) return 0;
+      if (now >= end) return 100;
+
+      const total = end - start;
+      const passed = now - start;
+      return Math.round((passed / total) * 100);
+    }
+
+    function renderTasks() {
+      const tbody = document.getElementById('taskList');
+      tbody.innerHTML = '';
+
+      if (tasks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma tarefa cadastrada</td></tr>';
+        showMessage("Vamos começar! Crie sua primeira tarefa. 🚀");
+        return;
+      }
+
+      tasks.forEach((task, idx) => {
+        const progress = calcProgress(task);
+        const doneClass = task.done ? 'done' : '';
+        const status = task.done ? 'Concluído' : (progress >= 100 ? 'Prazo expirado' : 'Em andamento');
+
+        const tr = document.createElement('tr');
+
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = task.title;
+        tdTitle.className = doneClass;
+        tr.appendChild(tdTitle);
+
+        const tdPeriod = document.createElement('td');
+        const inicio = new Date(task.startDateTime).toLocaleString();
+        const fim = new Date(task.endDateTime).toLocaleString();
+        tdPeriod.textContent = `${inicio} até ${fim}`;
+        tr.appendChild(tdPeriod);
+
+        const tdProgress = document.createElement('td');
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar';
+        const fill = document.createElement('div');
+        fill.className = 'progress-fill';
+        fill.style.width = progress + '%';
+        bar.appendChild(fill);
+        tdProgress.appendChild(bar);
+        tr.appendChild(tdProgress);
+
+        const tdStatus = document.createElement('td');
+        tdStatus.textContent = status;
+        tdStatus.style.color = task.done ? 'green' : (progress >= 100 ? 'red' : 'black');
+        tr.appendChild(tdStatus);
+
+        const tdActions = document.createElement('td');
+        const btnDone = document.createElement('button');
+        btnDone.textContent = task.done ? 'Desfazer' : 'Concluir';
+        btnDone.onclick = () => toggleDone(idx);
+        tdActions.appendChild(btnDone);
+
+        const btnDel = document.createElement('button');
+        btnDel.textContent = 'Excluir';
+        btnDel.style.backgroundColor = '#ff5555';
+        btnDel.style.color = 'white';
+        btnDel.onclick = () => deleteTask(idx);
+        tdActions.appendChild(btnDel);
+
+        tr.appendChild(tdActions);
+        tbody.appendChild(tr);
+      });
+
+      updateMessage();
+    }
+
+    function addTask() {
+      const title = document.getElementById('taskTitle').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const startDate = document.getElementById('startDate').value;
+      const startTime = document.getElementById('startTime').value;
+      const endDate = document.getElementById('endDate').value;
+      const endTime = document.getElementById('endTime').value;
+
+      if (!title || !email || !startDate || !startTime || !endDate || !endTime) {
+        alert('Preencha todos os campos.');
+        return;
+      }
+
+      if (!email.endsWith('@gmail.com')) {
+        alert('Informe um Gmail válido.');
+        return;
+      }
+
+      const startDateTime = getDateTime(startDate, startTime);
+      const endDateTime = getDateTime(endDate, endTime);
+
+      if (startDateTime >= endDateTime) {
+        alert('Data/hora inicial não pode ser maior ou igual à final.');
+        return;
+      }
+
+      tasks.push({
+        title,
+        startDateTime,
+        endDateTime,
+        done: false
+      });
+
+      saveTasks();
+      renderTasks();
+    }
+
+    function toggleDone(idx) {
+      tasks[idx].done = !tasks[idx].done;
+      saveTasks();
+      renderTasks();
+    }
+
+    function deleteTask(idx) {
+      tasks.splice(idx, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    function updateMessage() {
+      const messageBox = document.getElementById('messageBox');
+      if (tasks.length === 0) {
+        messageBox.textContent = '';
+      } else {
+        const remaining = tasks.filter(task => !task.done).length;
+        messageBox.textContent = `Você tem ${remaining} tarefa(s) pendente(s).`;
+      }
+    }
+
+    function showMessage(msg) {
+      const messageBox = document.getElementById('messageBox');
+      messageBox.textContent = msg;
+    }
+
+    renderTasks();
+  </script>
+</body>
+</html>
+
+
+     
+    

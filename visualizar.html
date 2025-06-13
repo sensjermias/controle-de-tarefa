@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Visualizar Tarefas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #36d1dc, #5b86e5);
+      color: #333;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      color: white;
+    }
+    .table-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+    .progress-bar {
+      background: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+      width: 100px;
+    }
+    .progress-fill {
+      background: #33ddaa;
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 10px 0 0 10px;
+    }
+    .back-button {
+      display: block;
+      margin: 20px auto;
+      text-align: center;
+    }
+    .back-button a {
+      background: #33ddaa;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+    .back-button a:hover {
+      background: #28b88a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Visualização de Tarefas</h1>
+
+  <div class="table-container">
+    <table id="taskTable">
+      <thead>
+        <tr>
+          <th>Tarefa</th>
+          <th>Período</th>
+          <th>Progresso</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="taskBody"></tbody>
+    </table>
+  </div>
+
+  <div class="back-button">
+    <a href="tarefas.html">← Voltar</a>
+  </div>
+
+<script>
+  const user = localStorage.getItem('loggedUser') || 'Usuário';
+  const tasks = JSON.parse(localStorage.getItem('tasks_' + user) || '[]');
+
+  function calcProgress(task) {
+    const now = new Date();
+    const start = new Date(task.startDateTime);
+    const end = new Date(task.endDateTime);
+    if (now <= start) return 0;
+    if (now >= end) return 100;
+    const total = end - start;
+    const passed = now - start;
+    return Math.round((passed / total) * 100);
+  }
+
+  function renderTasks() {
+    const tbody = document.getElementById('taskBody');
+    if (tasks.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhuma tarefa encontrada.</td></tr>';
+      return;
+    }
+
+    tasks.forEach(task => {
+      const progress = calcProgress(task);
+      const status = task.done ? 'Concluído' : (progress >= 100 ? 'Expirado' : 'Em andamento');
+
+      const row = document.createElement('tr');
+
+      const tdTitle = document.createElement('td');
+      tdTitle.textContent = task.title;
+      tdTitle.className = task.done ? 'done' : '';
+      row.appendChild(tdTitle);
+
+      const tdPeriod = document.createElement('td');
+      tdPeriod.textContent = new Date(task.startDateTime).toLocaleString() + ' até ' + new Date(task.endDateTime).toLocaleString();
+      row.appendChild(tdPeriod);
+
+      const tdProgress = document.createElement('td');
+      const bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      const fill = document.createElement('div');
+      fill.className = 'progress-fill';
+      fill.style.width = progress + '%';
+      bar.appendChild(fill);
+      tdProgress.appendChild(bar);
+      row.appendChild(tdProgress);
+
+      const tdStatus = document.createElement('td');
+      tdStatus.textContent = status;
+      tdStatus.style.color = task.done ? 'green' : (progress >= 100 ? 'red' : 'black');
+      row.appendChild(tdStatus);
+
+      tbody.appendChild(row);
+    });
+  }
+
+  renderTasks();
+</script>
+</body>
+</html>

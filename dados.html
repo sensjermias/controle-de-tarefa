@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Tarefas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff6b6b, #f4d35e, #00a896);
+            background-size: 400% 400%;
+            animation: gradientBG 10s infinite alternate;
+            text-align: center;
+            color: white;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        #container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: black;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .done {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Usuário">
+        <input type="password" id="password" placeholder="Senha">
+        <button onclick="validateUser()">Entrar</button>
+
+        <h2>Lista de Tarefas</h2>
+        <input type="text" id="taskInput" placeholder="Adicione uma tarefa">
+        <button onclick="addTask()">Adicionar</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tarefa</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="taskList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function validateUser() {
+            let user = document.getElementById("username").value;
+            let pass = document.getElementById("password").value;
+
+            fetch("validate.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: user, password: pass })
+            })
+            .then(response => response.text())
+            .then(data => alert(data));
+        }
+
+        function addTask() {
+            let input = document.getElementById("taskInput");
+            let taskText = input.value.trim();
+
+            if (taskText === "") {
+                alert("Digite uma tarefa!");
+                return;
+            }
+
+            let table = document.getElementById("taskList");
+            let row = table.insertRow();
+            let cell1 = row.insertCell(0);
+            let cell2 = row.insertCell(1);
+            let cell3 = row.insertCell(2);
+
+            cell1.innerText = taskText;
+            cell2.innerText = "Pendente";
+            cell3.innerHTML = `
+                <button onclick="markDone(this)">✔</button>
+                <button onclick="removeTask(this)">🗑</button>
+            `;
+
+            input.value = "";
+        }
+
+        function removeTask(button) {
+            button.parentElement.parentElement.remove();
+        }
+
+        function markDone(button) {
+            let row = button.parentElement.parentElement;
+            row.cells[1].innerText = "Concluído";
+            row.classList.add("done");
+        }
+    </script>
+    
+</body>
+</html>
