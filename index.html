@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(45deg, #00aaff, #00ffaa);
+      background-size: 400% 400%;
+      animation: gradient 10s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    input, button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      background: #00aaff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0077cc;
+    }
+    a {
+      color: #00aaff;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Login</h2>
+    <input type="text" id="loginUser" placeholder="Usuário">
+    <input type="password" id="loginPass" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    <p><a href="cadastro.html">Criar conta</a> | <a href="recuperar.html">Esqueci a senha</a></p>
+  </div>
+
+  <script>
+    function login() {
+      const user = document.getElementById('loginUser').value;
+      const pass = document.getElementById('loginPass').value;
+      const users = JSON.parse(localStorage.getItem('usuarios') || '[]');
+      const found = users.find(u => u.user === user && u.pass === pass);
+      if (found) {
+        localStorage.setItem('loggedUser', user);
+        window.location.href = 'tarefas.html';
+      } else {
+        alert("Usuário ou senha incorretos");
+      }
+    }
+  </script>
+</body>
+</html>
