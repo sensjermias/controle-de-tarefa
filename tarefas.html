@@ -162,6 +162,10 @@
     <input type="date" id="endDate" />
     <input type="time" id="endTime" />
 
+    <label for="fileUpload">Anexar Arquivo:</label>
+    <input type="file" id="fileUpload" />
+
+
     <button onclick="addTask()">Adicionar Tarefa</button>
 
     <table>
@@ -334,6 +338,81 @@
     }
 
     renderTasks();
+
+function addTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const startDate = document.getElementById('startDate').value;
+  const startTime = document.getElementById('startTime').value;
+  const endDate = document.getElementById('endDate').value;
+  const endTime = document.getElementById('endTime').value;
+  const fileInput = document.getElementById('fileUpload');
+  const file = fileInput.files[0];
+
+  if (!title || !email || !startDate || !startTime || !endDate || !endTime) {
+    alert('Preencha todos os campos.');
+    return;
+  }
+
+  if (!email.endsWith('@gmail.com')) {
+    alert('Informe um Gmail válido.');
+    return;
+  }
+
+  const startDateTime = getDateTime(startDate, startTime);
+  const endDateTime = getDateTime(endDate, endTime);
+
+  if (startDateTime >= endDateTime) {
+    alert('Data/hora inicial não pode ser maior ou igual à final.');
+    return;
+  }
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const fileData = {
+        name: file.name,
+        content: reader.result
+      };
+
+      tasks.push({
+        title,
+        startDateTime,
+        endDateTime,
+        done: false,
+        file: fileData
+      });
+
+      saveTasks();
+      renderTasks();
+    };
+    reader.readAsDataURL(file); // converte em base64
+  } else {
+    tasks.push({
+      title,
+      startDateTime,
+      endDateTime,
+      done: false,
+      file: null
+    });
+
+    saveTasks();
+    renderTasks();
+  }
+}
+
+if (task.file) {
+  const downloadBtn = document.createElement('button');
+  downloadBtn.textContent = 'Ver Arquivo';
+  downloadBtn.onclick = () => {
+    const link = document.createElement('a');
+    link.href = task.file.content;
+    link.download = task.file.name;
+    link.click();
+  };
+  tdActions.appendChild(downloadBtn);
+}
+
   </script>
 </body>
 </html>
