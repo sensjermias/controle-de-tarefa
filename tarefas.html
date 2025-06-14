@@ -5,7 +5,7 @@
   <title>Minhas Tarefas</title>
   <style>
     /* Estilos omitidos para brevidade */
-   body {
+    body {
       font-family: Arial, sans-serif;
       background: linear-gradient(120deg, #33ddaa, #3399ff);
       background-size: 200% 200%;
@@ -51,7 +51,8 @@
     input[type="text"],
     input[type="email"],
     input[type="date"],
-    input[type="time"] {
+    input[type="time"],
+    input[type="file"] {
       width: 100%;
       padding: 8px;
       margin: 6px 0 14px 0;
@@ -165,7 +166,6 @@
     <label for="fileUpload">Anexar Arquivo:</label>
     <input type="file" id="fileUpload" />
 
-
     <button onclick="addTask()">Adicionar Tarefa</button>
 
     <table>
@@ -176,6 +176,7 @@
           <th>Progresso</th>
           <th>Status</th>
           <th>Ações</th>
+            <th>Arquivo</th>
         </tr>
       </thead>
       <tbody id="taskList"></tbody>
@@ -204,7 +205,6 @@
       const end = new Date(task.endDateTime);
       if (now <= start) return 0;
       if (now >= end) return 100;
-
       const total = end - start;
       const passed = now - start;
       return Math.round((passed / total) * 100);
@@ -254,6 +254,7 @@
         tr.appendChild(tdStatus);
 
         const tdActions = document.createElement('td');
+
         const btnDone = document.createElement('button');
         btnDone.textContent = task.done ? 'Desfazer' : 'Concluir';
         btnDone.onclick = () => toggleDone(idx);
@@ -266,48 +267,90 @@
         btnDel.onclick = () => deleteTask(idx);
         tdActions.appendChild(btnDel);
 
+        // Botão de visualizar/baixar arquivo
+        if (task.file) {
+          const btnFile = document.createElement('button');
+          btnFile.textContent = 'Ver Arquivo';
+          btnFile.onclick = () => {
+            const a = document.createElement('a');
+            a.href = task.file.content;
+            a.download = task.file.name;
+            a.click();
+          };
+          tdActions.appendChild(btnFile);
+        }
+
         tr.appendChild(tdActions);
+        tr.classList.add('fade-in-row');
         tbody.appendChild(tr);
       });
 
-      updateMessage();
+      showMessage("");
+    }
+
+    function showMessage(msg) {
+      document.getElementById('messageBox').textContent = msg;
     }
 
     function addTask() {
-      const title = document.getElementById('taskTitle').value.trim();
       const email = document.getElementById('email').value.trim();
+      const title = document.getElementById('taskTitle').value.trim();
       const startDate = document.getElementById('startDate').value;
       const startTime = document.getElementById('startTime').value;
       const endDate = document.getElementById('endDate').value;
       const endTime = document.getElementById('endTime').value;
+      const fileInput = document.getElementById('fileUpload');
+      const file = fileInput.files[0];
 
-      if (!title || !email || !startDate || !startTime || !endDate || !endTime) {
-        alert('Preencha todos os campos.');
-        return;
-      }
-
-      if (!email.endsWith('@gmail.com')) {
-        alert('Informe um Gmail válido.');
+      if (!email || !title || !startDate || !startTime || !endDate || !endTime || !fileUpload) {
+        showMessage("Por favor, preencha todos os campos obrigatórios.");
         return;
       }
 
       const startDateTime = getDateTime(startDate, startTime);
       const endDateTime = getDateTime(endDate, endTime);
 
-      if (startDateTime >= endDateTime) {
-        alert('Data/hora inicial não pode ser maior ou igual à final.');
+      if (endDateTime <= startDateTime) {
+        showMessage("A data/hora final deve ser após a inicial.");
         return;
       }
 
-      tasks.push({
+      const newTask = {
+        email,
         title,
-        startDateTime,
-        endDateTime,
+        startDateTime: startDateTime.toISOString(),
+        endDateTime: endDateTime.toISOString(),
+        fileUpload: fileUpload,
         done: false
-      });
+      };
 
-      saveTasks();
-      renderTasks();
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          newTask.file = {
+            name: file.name,
+            content: e.target.result
+          };
+          tasks.push(newTask);
+          saveTasks();
+          renderTasks();
+          showMessage("Tarefa adicionada com sucesso!");
+          fileInput.value = '';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        tasks.push(newTask);
+        saveTasks();
+        renderTasks();
+        showMessage("Tarefa adicionada com sucesso!");
+      }
+
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('startDate').value = '';
+      document.getElementById('startTime').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('endTime').value = '';
+      document.getElementById('fileUpload').value = '';
     }
 
     function toggleDone(idx) {
@@ -317,102 +360,16 @@
     }
 
     function deleteTask(idx) {
-      tasks.splice(idx, 1);
-      saveTasks();
-      renderTasks();
-    }
-
-    function updateMessage() {
-      const messageBox = document.getElementById('messageBox');
-      if (tasks.length === 0) {
-        messageBox.textContent = '';
-      } else {
-        const remaining = tasks.filter(task => !task.done).length;
-        messageBox.textContent = `Você tem ${remaining} tarefa(s) pendente(s).`;
+      if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+        tasks.splice(idx, 1);
+        saveTasks();
+        renderTasks();
+        showMessage("Tarefa excluída.");
       }
     }
 
-    function showMessage(msg) {
-      const messageBox = document.getElementById('messageBox');
-      messageBox.textContent = msg;
-    }
-
+    // Inicializa a lista ao carregar
     renderTasks();
-
-function addTask() {
-  const title = document.getElementById('taskTitle').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const startDate = document.getElementById('startDate').value;
-  const startTime = document.getElementById('startTime').value;
-  const endDate = document.getElementById('endDate').value;
-  const endTime = document.getElementById('endTime').value;
-  const fileInput = document.getElementById('fileUpload');
-  const file = fileInput.files[0];
-
-  if (!title || !email || !startDate || !startTime || !endDate || !endTime) {
-    alert('Preencha todos os campos.');
-    return;
-  }
-
-  if (!email.endsWith('@gmail.com')) {
-    alert('Informe um Gmail válido.');
-    return;
-  }
-
-  const startDateTime = getDateTime(startDate, startTime);
-  const endDateTime = getDateTime(endDate, endTime);
-
-  if (startDateTime >= endDateTime) {
-    alert('Data/hora inicial não pode ser maior ou igual à final.');
-    return;
-  }
-
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function () {
-      const fileData = {
-        name: file.name,
-        content: reader.result
-      };
-
-      tasks.push({
-        title,
-        startDateTime,
-        endDateTime,
-        done: false,
-        file: fileData
-      });
-
-      saveTasks();
-      renderTasks();
-    };
-    reader.readAsDataURL(file); // converte em base64
-  } else {
-    tasks.push({
-      title,
-      startDateTime,
-      endDateTime,
-      done: false,
-      file: null
-    });
-
-    saveTasks();
-    renderTasks();
-  }
-}
-
-if (task.file) {
-  const downloadBtn = document.createElement('button');
-  downloadBtn.textContent = 'Ver Arquivo';
-  downloadBtn.onclick = () => {
-    const link = document.createElement('a');
-    link.href = task.file.content;
-    link.download = task.file.name;
-    link.click();
-  };
-  tdActions.appendChild(downloadBtn);
-}
-
   </script>
 </body>
 </html>
