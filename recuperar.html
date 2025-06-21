@@ -4,21 +4,21 @@
   <meta charset="UTF-8">
   <title>Recuperar Senha</title>
   <style>
-    body {
-      font-family: Arial;
-      background: linear-gradient(45deg, #ff3366, #ffcc00);
-      background-size: 400% 400%;
-      animation: gradient 10s ease infinite;
+   @keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+   background: radial-gradient(circle at center, #2a2727,#140d0d, #000000);
+  animation: gradient 20s ease infinite;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+   
     .box {
       background: white;
       padding: 30px;
