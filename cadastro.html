@@ -4,11 +4,15 @@
   <meta charset="UTF-8">
   <title>Cadastro</title>
   <style>
-    body {
-      font-family: Arial;
-      background: linear-gradient(45deg, #ffaa00, #ff55aa);
-      background-size: 400% 400%;
-      animation: gradient 10s ease infinite;
+  @keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+   background: radial-gradient(circle at center, #2a2727,#140d0d, #000000);
+  animation: gradient 20s ease infinite;
       display: flex;
       justify-content: center;
       align-items: center;
