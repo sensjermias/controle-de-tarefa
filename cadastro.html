@@ -19,13 +19,60 @@ body {
       height: 100vh;
     }
 
-    .box {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+   .box {
+  position: relative;
+  width: 300px;
+  height: 400px;
+  padding: 30px;
+  border-radius: 8px;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.905);
+  box-shadow: 0 2px 10px rgb(167, 71, 71);
+  overflow: hidden;
+}
+
+/* Pseudo-elemento para criar a borda girando */
+.box::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border-radius: 8px;
+  background: conic-gradient(from 0deg, red, yellow, lime, cyan, blue, magenta, red);
+  z-index: 0;
+  animation: rotate 4s linear infinite;
+}
+
+/* Máscara para manter o conteúdo acima da borda girando */
+.box::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  background-color: rgba(0, 0, 0, 0.905);
+  border-radius: 8px;
+  z-index: 1;
+}
+
+/* Conteúdo da box */
+.box > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Animação de rotação */
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
     }
     input, button {
       width: 100%;
